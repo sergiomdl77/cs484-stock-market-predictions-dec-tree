@@ -1,4 +1,3 @@
-import pandas as pd
 from io import StringIO
 import string
 import nltk
@@ -6,7 +5,6 @@ import re
 import random
 import operator
 import numpy
-from textblob import TextBlob
 from nltk.sentiment.util import *
 from nltk.sentiment import SentimentAnalyzer
 from nltk.corpus import subjectivity
@@ -35,30 +33,33 @@ from sklearn.neural_network import MLPClassifier
 
 def main():
 
+    print('Welcome to Stock Portfolio Builder\n')
+    userName = input('What Username would you like you use\n')
+    log = open('userName', 'w')
+
     trainHolder = []
     trainTitle = []
     testHolder = []
     testTitle = []
 
     counter = 0
-    #2017 Will be used as our TEST file
+    # 2017 Will be used as our TEST file
     for line in open('2017_Financial_Data.dat', 'r'):
-       if counter == 0:
-           line = line.split(',')
-           trainTitle = line
-           counter += 1
-       else:
-           line = line.split(',')
-           trainHolder.append(line)
+        if counter == 0:
+            line = line.split(',')
+            trainTitle = line
+            counter += 1
+        else:
+            line = line.split(',')
+            trainHolder.append(line)
 
-
-    print(trainTitle)
     print(len(trainTitle))
-    print(trainHolder[0])
+    print(trainTitle)
     print(len(trainHolder[0]))
+    print(trainHolder[0])
 
     tcounter = 0
-    #2016 Will be used as our TRAIN file
+    # 2016 Will be used as our TRAIN file
     for line in open('2016_Financial_Data.dat', 'r'):
         if tcounter == 0:
             line = line.split(',')
@@ -67,8 +68,6 @@ def main():
         else:
             line = line.split(',')
             testHolder.append(line)
-
-// print("hello world")
 
 
 if __name__ == '__main__':
