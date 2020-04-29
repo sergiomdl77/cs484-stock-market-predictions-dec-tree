@@ -52,13 +52,36 @@ def main():
     testLabel = []
 
     counter = 0
-    # 2017 Will be used as our TRAIN file
+    # 2017 Will be used as our TEST file
     for line in open('2017_Financial_Data.dat', 'r'):
         if counter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
-            trainTitle = line
+            testTitle = line
             counter += 1
+        else:
+            line = line.split(',')
+            line = line[: len(line) - 3]
+            testNames.append(line[0])
+            del line[0]
+            for s in range(len(line)):
+                if line[s] == '':
+                    line[s] = 0
+                line[s] = float(line[s])
+            testLabel.append(line[1])
+            del line[1]
+            testHolder.append(line)
+
+    testHolder = np.array(testHolder)
+
+    tcounter = 0
+    # 2016 Will be used as our TRAIN file
+    for line in open('2016_Financial_Data.dat', 'r'):
+        if tcounter == 0:
+            line = line.split(',')
+            line = line[: len(line) - 5]
+            trainTitle = line
+            tcounter += 1
         else:
             line = line.split(',')
             line = line[: len(line) - 3]
@@ -74,41 +97,21 @@ def main():
 
     trainHolder = np.array(trainHolder)
 
-    tcounter = 0
-    # 2016 Will be used as our TEST file
-    for line in open('2016_Financial_Data.dat', 'r'):
-        if tcounter == 0:
-            line = line.split(',')
-            line = line[: len(line) - 5]
-            testTitle = line
-            tcounter += 1
-        else:
-            line = line.split(',')
-            line = line[: len(line) - 3]
-            testNames.append(line[0])
-            del line[0]
-            for s in range(len(line)):
-                if line[s] == '':
-                    line[s] = 0
-                line[s] = float(line[s])
-            testLabel.append(line[1])
-            del line[1]
-            testHolder.append(line)
-
-    testHolder = np.array(testHolder)
-    trainHolder = trainHolder[:len(testHolder)]
-
-    #result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
-    #accurecyResultKNN = getAccurecy(result,testLabel)
-    #print(accurecyResultKNN)
+    result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
+    accurecyResultKNN = getAccurecy(result,testLabel)
+    print(accurecyResultKNN)
 
     # resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
-    # accurecyResultDec = getAccurecy(resultD,testLabel)
+    # accurecyResultDec = getF1Score(resultD,testLabel)
     # print(accurecyResultDec)
 
     # resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
-    # accurecyResultNN = getAccurecy(resultN, testLabel)
+    # accurecyResultNN = getF1Score(resultN, testLabel)
     # print(accurecyResultNN)
+
+#     updatePortfolio()
+#
+# def updatePortfolio():
 
 
 def getAccurecy(result,testLabel):
@@ -130,6 +133,36 @@ def getAccurecy(result,testLabel):
 
     return acResult
 
+def getF1Score(resultD,testLabel):
+
+    temp = []
+    for t in testLabel:
+        if t > 0:
+            temp.append(1)
+        else:
+            temp.append(0)
+
+    recall = 0
+    precision = 0
+    F1 = 0
+
+    TP = 0
+    FN = 0
+    FP = 0
+
+    for i in range(len(resultD)):
+        if resultD[i] == 1 and temp[i] == 1:
+            TP += 1
+        elif resultD[i] == 0 and temp[i] == 1:
+            FN += 1
+        elif resultD[i] == 1 and temp[i] == 0:
+            FP += 1
+
+    recall = TP/(TP+FN)
+    precision = TP/(TP+FP)
+    F1 = (2*(recall*precision))/(recall+precision)
+
+    return F1
 
 def DecisionT(trainHolder,testHolder,trainLabel,testLabel):
 
@@ -139,23 +172,23 @@ def DecisionT(trainHolder,testHolder,trainLabel,testLabel):
     imb = SMOTE(random_state=40)
 
     temp = []
-    for i in testLabel:
+    for i in trainLabel:
         if i > 0:
             temp.append(1)
         else:
             temp.append(0)
 
-    #Transform the Train data for 2017
+    # Transform the Train data for 2016
     train_sparce = csr_matrix(trainHolder)
     train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
     train_sparce, temp = imb.fit_sample(train_sparce, temp)
 
-    #Transform the Test data for 2016
+    # Transform the Test data for 2017
     test_sparce = csr_matrix(testHolder)
     test_sparce = tsvd.transform(test_sparce)
 
 
-    clf = DecisionTreeClassifier(criterion="gini", max_depth=5, random_state=50)
+    clf = DecisionTreeClassifier(criterion="gini", max_depth=11, random_state=15)
     clf.fit(train_sparce, temp)
 
     return clf.predict(test_sparce)
@@ -168,18 +201,18 @@ def NeuralN(trainHolder, testHolder, trainLabel, testLabel):
     imb = SMOTE(random_state=40)
 
     temp = []
-    for i in testLabel:
+    for i in trainLabel:
         if i > 0:
             temp.append(1)
         else:
             temp.append(0)
 
-    # Transform the Train data for 2017
+    # Transform the Train data for 2016
     train_sparce = csr_matrix(trainHolder)
     train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
     train_sparce, temp = imb.fit_sample(train_sparce, temp)
 
-    # Transform the Test data for 2016
+    # Transform the Test data for 2017
     test_sparce = csr_matrix(testHolder)
     test_sparce = tsvd.transform(test_sparce)
 
@@ -187,6 +220,7 @@ def NeuralN(trainHolder, testHolder, trainLabel, testLabel):
     clf.fit(train_sparce, temp)
 
     return clf.predict(test_sparce)
+
 
 def KNN(trainHolder,testHolder,trainLabel,testLabel,k):
 
