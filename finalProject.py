@@ -41,6 +41,7 @@ def main():
     userName = input('What Username would you like you use for you Portfolio\n')
     log = open(str(userName)+'.txt', 'w')
     log.write("Welcome " + userName + " to your personal PortFolio! \n")
+    log.write("\n")
 
     trainHolder = []    #Holds all of the stocks as vectors
     trainTitle = []     #Holds the first row which is the attributes
