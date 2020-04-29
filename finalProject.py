@@ -35,16 +35,18 @@ sentiment = SentimentIntensityAnalyzer()
 
 def main():
 
-    k = 7
+    k = 21
 
     print('Welcome to Stock Portfolio Builder\n')
-    # userName = input('What Username would you like you use for you Portfolio\n')
-    # log = open('userName', 'w')
+    userName = input('What Username would you like you use for you Portfolio\n')
+    log = open(str(userName)+'.txt', 'w')
+    log.write("Welcome " + userName + " to your personal PortFolio! \n")
 
     trainHolder = []    #Holds all of the stocks as vectors
     trainTitle = []     #Holds the first row which is the attributes
     trainNames = []     #Holds the names of the stocks, first colum
     trainLabel = []     #Holds the labels of each stock - Revenu Growth
+    trainDic = {}
 
     testHolder = []
     testTitle = []
@@ -74,6 +76,7 @@ def main():
 
     testHolder = np.array(testHolder)
 
+    dicIndex = 0
     tcounter = 0
     # 2016 Will be used as our TRAIN file
     for line in open('2016_Financial_Data.dat', 'r'):
@@ -92,26 +95,58 @@ def main():
                     line[s] = 0
                 line[s] = float(line[s])
             trainLabel.append(line[1])
+            trainDic.update({dicIndex:line[1]})
+            dicIndex +=1
             del line[1]
             trainHolder.append(line)
-
     trainHolder = np.array(trainHolder)
 
     result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
-    accurecyResultKNN = getAccurecy(result,testLabel)
+    accurecyResultKNN = getF1Score(result,testLabel)
     print(accurecyResultKNN)
 
-    # resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
-    # accurecyResultDec = getF1Score(resultD,testLabel)
-    # print(accurecyResultDec)
+    resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
+    accurecyResultDec = getF1Score(resultD,testLabel)
 
-    # resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
-    # accurecyResultNN = getF1Score(resultN, testLabel)
-    # print(accurecyResultNN)
+    resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
+    accurecyResultNN = getF1Score(resultN, testLabel)
 
-#     updatePortfolio()
-#
-# def updatePortfolio():
+    updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
+
+def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log):
+
+    sort = sorted(trainDic, key=lambda x: trainDic[x],reverse=True)
+    top10 = sort[:10]
+    tempGrowth = []
+    actualGrowth = []
+
+    for i in top10:
+        for j in range(len(testLabel)):
+            if trainNames[i] == testNames[j]:
+                tempGrowth.append(j)
+
+    for x in tempGrowth:
+        if testLabel[x] > 0:
+            actualGrowth.append(x)
+
+
+    log.write("The F1Score from DecisionTree = " + str(accurecyResultDec))
+    log.write("\nThe F1Score from KNN neighbors = " + str(accurecyResultKNN) + "\n")
+    log.write("The F1Score from NeuralNetwork = " + str(accurecyResultNN) + "\n")
+    log.write("---------------------------------------------------------------------\n")
+    log.write("These are the top 10 stocks from 2016 that had the highest Growth\n")
+    log.write("---------------------------------------------------------------------\n")
+    for i in top10:
+        log.write(str(trainNames[i]) + " Current Revenue -> " + str(trainHolder[i][0]) + "\n")
+    log.write("---------------------------------------------------------------------\n")
+    log.write("Out of those, These are the once that Actually Grew biased on OUR predictions! \n")
+    log.write("---------------------------------------------------------------------\n")
+    for i in actualGrowth:
+        log.write(str(testNames[i]) + " Future Revenue Grown %" + str(testLabel[i]) + " Future Revenue -> " + str(testHolder[i][0]) + "\n")
+    log.write("---------------------------------------------------------------------\n")
+
+
+
 
 
 def getAccurecy(result,testLabel):
@@ -180,17 +215,15 @@ def DecisionT(trainHolder,testHolder,trainLabel,testLabel):
 
     # Transform the Train data for 2016
     train_sparce = csr_matrix(trainHolder)
-    train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
-    train_sparce, temp = imb.fit_sample(train_sparce, temp)
+    # train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
+    # train_sparce, temp = imb.fit_sample(train_sparce, temp)
 
     # Transform the Test data for 2017
     test_sparce = csr_matrix(testHolder)
-    test_sparce = tsvd.transform(test_sparce)
+    # test_sparce = tsvd.transform(test_sparce)
 
-
-    clf = DecisionTreeClassifier(criterion="gini", max_depth=11, random_state=15)
+    clf = DecisionTreeClassifier(criterion="gini", max_depth=3, random_state=53)
     clf.fit(train_sparce, temp)
-
     return clf.predict(test_sparce)
 
 def NeuralN(trainHolder, testHolder, trainLabel, testLabel):
@@ -209,16 +242,15 @@ def NeuralN(trainHolder, testHolder, trainLabel, testLabel):
 
     # Transform the Train data for 2016
     train_sparce = csr_matrix(trainHolder)
-    train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
-    train_sparce, temp = imb.fit_sample(train_sparce, temp)
+    # train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
+    # train_sparce, temp = imb.fit_sample(train_sparce, temp)
 
     # Transform the Test data for 2017
     test_sparce = csr_matrix(testHolder)
-    test_sparce = tsvd.transform(test_sparce)
+    # test_sparce = tsvd.transform(test_sparce)
 
-    clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(5, 2), random_state=53)
     clf.fit(train_sparce, temp)
-
     return clf.predict(test_sparce)
 
 
