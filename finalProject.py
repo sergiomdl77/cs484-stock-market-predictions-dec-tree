@@ -1,6 +1,7 @@
 from io import StringIO
 import string
 import nltk
+#nltk.download('vader_lexicon')
 import re
 import random
 import operator
@@ -20,6 +21,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import svm
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.decomposition import TruncatedSVD
+from imblearn.over_sampling import SMOTE
 from scipy.sparse import csr_matrix
 from nltk.corpus import subjectivity
 from nltk.classify import NaiveBayesClassifier
@@ -28,7 +30,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neural_network import MLPClassifier
 
-
+sentiment = SentimentIntensityAnalyzer()
 
 
 def main():
@@ -50,7 +52,7 @@ def main():
     testLabel = []
 
     counter = 0
-    # 2017 Will be used as our TEST file
+    # 2017 Will be used as our TRAIN file
     for line in open('2017_Financial_Data.dat', 'r'):
         if counter == 0:
             line = line.split(',')
@@ -59,7 +61,7 @@ def main():
             counter += 1
         else:
             line = line.split(',')
-            line = line[: len(line) - 4]
+            line = line[: len(line) - 3]
             trainNames.append(line[0])
             del line[0]
             for s in range(len(line)):
@@ -73,7 +75,7 @@ def main():
     trainHolder = np.array(trainHolder)
 
     tcounter = 0
-    # 2016 Will be used as our TRAIN file
+    # 2016 Will be used as our TEST file
     for line in open('2016_Financial_Data.dat', 'r'):
         if tcounter == 0:
             line = line.split(',')
@@ -82,7 +84,7 @@ def main():
             tcounter += 1
         else:
             line = line.split(',')
-            line = line[: len(line) - 4]
+            line = line[: len(line) - 3]
             testNames.append(line[0])
             del line[0]
             for s in range(len(line)):
@@ -94,11 +96,20 @@ def main():
             testHolder.append(line)
 
     testHolder = np.array(testHolder)
+    trainHolder = trainHolder[:len(testHolder)]
 
-    result = KNN(trainHolder,testHolder,trainLabel,k)
-    accurecyResult = getAccurecy(result,testLabel)
+    #result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
+    #accurecyResultKNN = getAccurecy(result,testLabel)
+    #print(accurecyResultKNN)
 
-    print(accurecyResult)
+    # resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
+    # accurecyResultDec = getAccurecy(resultD,testLabel)
+    # print(accurecyResultDec)
+
+    # resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
+    # accurecyResultNN = getAccurecy(resultN, testLabel)
+    # print(accurecyResultNN)
+
 
 def getAccurecy(result,testLabel):
 
@@ -120,9 +131,64 @@ def getAccurecy(result,testLabel):
     return acResult
 
 
+def DecisionT(trainHolder,testHolder,trainLabel,testLabel):
+
+    # Truncated Singular Value Decomposition
+    tsvd = TruncatedSVD(n_components=200, algorithm='randomized', n_iter=50, random_state=40)
+    # SMOTE variable to deal with imbalence data using svm
+    imb = SMOTE(random_state=40)
+
+    temp = []
+    for i in testLabel:
+        if i > 0:
+            temp.append(1)
+        else:
+            temp.append(0)
+
+    #Transform the Train data for 2017
+    train_sparce = csr_matrix(trainHolder)
+    train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
+    train_sparce, temp = imb.fit_sample(train_sparce, temp)
+
+    #Transform the Test data for 2016
+    test_sparce = csr_matrix(testHolder)
+    test_sparce = tsvd.transform(test_sparce)
 
 
-def KNN(trainHolder,testHolder,trainLabel,k):
+    clf = DecisionTreeClassifier(criterion="gini", max_depth=5, random_state=50)
+    clf.fit(train_sparce, temp)
+
+    return clf.predict(test_sparce)
+
+def NeuralN(trainHolder, testHolder, trainLabel, testLabel):
+
+    # Truncated Singular Value Decomposition
+    tsvd = TruncatedSVD(n_components=200, algorithm='randomized', n_iter=50, random_state=40)
+    # SMOTE variable to deal with imbalence data using svm
+    imb = SMOTE(random_state=40)
+
+    temp = []
+    for i in testLabel:
+        if i > 0:
+            temp.append(1)
+        else:
+            temp.append(0)
+
+    # Transform the Train data for 2017
+    train_sparce = csr_matrix(trainHolder)
+    train_sparce = tsvd.fit(train_sparce, temp).transform(train_sparce)
+    train_sparce, temp = imb.fit_sample(train_sparce, temp)
+
+    # Transform the Test data for 2016
+    test_sparce = csr_matrix(testHolder)
+    test_sparce = tsvd.transform(test_sparce)
+
+    clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    clf.fit(train_sparce, temp)
+
+    return clf.predict(test_sparce)
+
+def KNN(trainHolder,testHolder,trainLabel,testLabel,k):
 
     finalResult = []
 
@@ -131,7 +197,7 @@ def KNN(trainHolder,testHolder,trainLabel,k):
         tempDistance = {}
 
         for j in range(len(trainHolder)):
-            dd = spatial.distance.cosine(testHolder[i], trainHolder[j])
+            dd = spatial.distance.euclidean(testHolder[i], trainHolder[j])
             tempDistance.update({j: dd})
 
         sort = sorted(tempDistance, key=lambda x: tempDistance[x])
