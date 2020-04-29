@@ -1,0 +1,28 @@
+Welcome 2016 to your personal PortFolio! 
+
+The F1Score from DecisionTree = 0.9162462159434914
+The F1Score from KNN neighbors = 0.7659211200273177
+The F1Score from NeuralNetwork = 0.8228357008844814
+---------------------------------------------------------------------
+These are the top 10 stocks from 2016 that had the highest Growth
+---------------------------------------------------------------------
+CYAD Current Revenue -> 10538947.3684
+OPTN Current Revenue -> 47500000.0
+PIXY Current Revenue -> 8460653.0
+EOI Current Revenue -> 53300000.0
+PRKR Current Revenue -> 4064000.0
+ACAD Current Revenue -> 17331000.0
+KALV Current Revenue -> 2133000.0
+NAKD Current Revenue -> 101140000.0
+IDRA Current Revenue -> 16199000.0
+WKHS Current Revenue -> 6414800.0
+---------------------------------------------------------------------
+Out of those, These are the once that Actually Grew biased on OUR predictions! 
+---------------------------------------------------------------------
+PIXY Future Revenue Grown %0.7268 Future Revenue -> 34958748.0
+EOI Future Revenue Grown %0.2532 Future Revenue -> 102442000.0
+PRKR Future Revenue Grown %0.35 Future Revenue -> 135000.0
+ACAD Future Revenue Grown %0.7919 Future Revenue -> 223807000.0
+KALV Future Revenue Grown %4.5811 Future Revenue -> 8394000.0
+NAKD Future Revenue Grown %0.5525 Future Revenue -> 2859884.0
+---------------------------------------------------------------------

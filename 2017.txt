@@ -1,0 +1,26 @@
+Welcome 2017 to your personal PortFolio! 
+
+The F1Score from DecisionTree = 0.9220532319391636
+The F1Score from KNN neighbors = 0.83829275623685
+The F1Score from NeuralNetwork = 0.8228357008844814
+---------------------------------------------------------------------
+These are the top 10 stocks from 2017 that had the highest Growth
+---------------------------------------------------------------------
+CNCE Current Revenue -> 143891000.0
+CLVS Current Revenue -> 55511000.0
+PRTK Current Revenue -> 12616000.0
+BGNE Current Revenue -> 238387000.0
+ARWR Current Revenue -> 31407709.0
+WMC Current Revenue -> 106362000.0
+AKBA Current Revenue -> 181227000.0
+CCD Current Revenue -> 54302000.0
+CNAT Current Revenue -> 35377000.0
+EDF Current Revenue -> 29835000.0
+---------------------------------------------------------------------
+Out of those, These are the once that Actually Grew biased on OUR predictions! 
+---------------------------------------------------------------------
+CLVS Future Revenue Grown %0.7184 Future Revenue -> 95388000.0
+PRTK Future Revenue Grown %0.3568 Future Revenue -> 17117000.0
+AKBA Future Revenue Grown %0.1463 Future Revenue -> 207742000.0
+CCD Future Revenue Grown %0.5302 Future Revenue -> 83093000.0
+---------------------------------------------------------------------

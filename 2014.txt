@@ -1,0 +1,29 @@
+Welcome 2014 to your personal PortFolio! 
+
+The F1Score from DecisionTree = 0.9160074061605791
+The F1Score from KNN neighbors = 0.8337116053865941
+The F1Score from NeuralNetwork = 0.8205692286539253
+---------------------------------------------------------------------
+These are the top 10 stocks from 2014 that had the highest Growth
+---------------------------------------------------------------------
+FPAY Current Revenue -> 5014620.0
+VCEL Current Revenue -> 28796000.0
+RDHL Current Revenue -> 7014000.0
+HEAR Current Revenue -> 186176000.0
+ESES Current Revenue -> 834482.0
+NLNK Current Revenue -> 172592000.0
+EQS Current Revenue -> 965000.0
+NXRT Current Revenue -> 43150000.0
+CRMD Current Revenue -> 189274.0
+PRTA Current Revenue -> 50854000.0
+---------------------------------------------------------------------
+Out of those, These are the once that Actually Grew biased on OUR predictions! 
+---------------------------------------------------------------------
+FPAY Future Revenue Grown %0.2637 Future Revenue -> 84728369.0
+VCEL Future Revenue Grown %0.4213 Future Revenue -> 90857000.0
+RDHL Future Revenue Grown %1.0863 Future Revenue -> 8360000.0
+HEAR Future Revenue Grown %0.9274 Future Revenue -> 287437000.0
+ESES Future Revenue Grown %0.6641 Future Revenue -> 40709621.0
+NXRT Future Revenue Grown %0.0164 Future Revenue -> 146597000.0
+CRMD Future Revenue Grown %0.3051 Future Revenue -> 429797.0
+---------------------------------------------------------------------

@@ -1,0 +1,30 @@
+Welcome 2015 to your personal PortFolio! 
+
+The F1Score from DecisionTree = 0.9120971823856926
+The F1Score from KNN neighbors = 0.7292778370686588
+The F1Score from NeuralNetwork = 0.8259310344827586
+---------------------------------------------------------------------
+These are the top 10 stocks from 2015 that had the highest Growth
+---------------------------------------------------------------------
+NAKD Current Revenue -> 106326000.0
+AEZS Current Revenue -> 545000.0
+NBLX Current Revenue -> 87837000.0
+ONCE Current Revenue -> 22063674.0
+AUMN Current Revenue -> 8071000.0
+GERN Current Revenue -> 36371000.0
+OMER Current Revenue -> 13509000.0
+TTOO Current Revenue -> 2813000.0
+EXAS Current Revenue -> 39437000.0
+SSKN Current Revenue -> 18495000.0
+---------------------------------------------------------------------
+Out of those, These are the once that Actually Grew biased on OUR predictions! 
+---------------------------------------------------------------------
+NAKD Future Revenue Grown %0.5525 Future Revenue -> 2859884.0
+AEZS Future Revenue Grown %28.1235 Future Revenue -> 26881000.0
+NBLX Future Revenue Grown %1.0709 Future Revenue -> 495520000.0
+ONCE Future Revenue Grown %4.3642 Future Revenue -> 64725000.0
+AUMN Future Revenue Grown %0.0786 Future Revenue -> 7217000.0
+GERN Future Revenue Grown %0.0009 Future Revenue -> 1066000.0
+TTOO Future Revenue Grown %1.2503 Future Revenue -> 10500000.0
+EXAS Future Revenue Grown %0.7086 Future Revenue -> 454462000.0
+---------------------------------------------------------------------

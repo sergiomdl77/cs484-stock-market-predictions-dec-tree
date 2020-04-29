@@ -56,7 +56,7 @@ def main():
 
     counter = 0
     # 2017 Will be used as our TEST file
-    for line in open('2017_Financial_Data.dat', 'r'):
+    for line in open('2018_Financial_Data.dat', 'r'):
         if counter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
@@ -80,7 +80,7 @@ def main():
     dicIndex = 0
     tcounter = 0
     # 2016 Will be used as our TRAIN file
-    for line in open('2016_Financial_Data.dat', 'r'):
+    for line in open('2017_Financial_Data.dat', 'r'):
         if tcounter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
@@ -135,7 +135,7 @@ def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN
     log.write("\nThe F1Score from KNN neighbors = " + str(accurecyResultKNN) + "\n")
     log.write("The F1Score from NeuralNetwork = " + str(accurecyResultNN) + "\n")
     log.write("---------------------------------------------------------------------\n")
-    log.write("These are the top 10 stocks from 2016 that had the highest Growth\n")
+    log.write("These are the top 10 stocks from 2017 that had the highest Growth\n")
     log.write("---------------------------------------------------------------------\n")
     for i in top10:
         log.write(str(trainNames[i]) + " Current Revenue -> " + str(trainHolder[i][0]) + "\n")
