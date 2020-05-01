@@ -1,47 +1,25 @@
-from io import StringIO
-import string
-import nltk
-#nltk.download('vader_lexicon')
-import re
-import random
-import operator
+
 import numpy as np
-from nltk.sentiment.util import *
-from nltk.sentiment import SentimentAnalyzer
-from nltk.corpus import subjectivity
-from nltk.classify import NaiveBayesClassifier
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from nltk.stem.snowball import SnowballStemmer
-import scipy
+
 from scipy import spatial
-from scipy.spatial import distance
-from sklearn.preprocessing import StandardScaler
-from sklearn import svm
+
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.decomposition import TruncatedSVD
 from imblearn.over_sampling import SMOTE
 from scipy.sparse import csr_matrix
-from nltk.corpus import subjectivity
-from nltk.classify import NaiveBayesClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.neural_network import MLPClassifier
 
-sentiment = SentimentIntensityAnalyzer()
+from sklearn.neural_network import MLPClassifier
 
 
 def main():
 
     k = 21
 
-    print('Welcome to Stock Portfolio Builder\n')
-    userName = input('What Username would you like you use for you Portfolio\n')
-    log = open(str(userName)+'.txt', 'w')
-    log.write("Welcome " + userName + " to your personal PortFolio! \n")
-    log.write("\n")
+    # print('Welcome to Stock Portfolio Builder\n')
+    # userName = input('What Username would you like you use for you Portfolio\n')
+    # log = open(str(userName)+'.txt', 'w')
+    # log.write("Welcome " + userName + " to your personal PortFolio! \n")
+    # log.write("\n")
 
     trainHolder = []    #Holds all of the stocks as vectors
     trainTitle = []     #Holds the first row which is the attributes
@@ -54,65 +32,88 @@ def main():
     testNames = []
     testLabel = []
 
+    posLabCount = 0
+    negLabCount = 0
+
     counter = 0
     # 2017 Will be used as our TEST file
-    for line in open('2018_Financial_Data.dat', 'r'):
+    for line in open('2017_Financial_Data.dat', 'r'):
         if counter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
             testTitle = line
             counter += 1
+
+
         else:
             line = line.split(',')
-            line = line[: len(line) - 3]
-            testNames.append(line[0])
-            del line[0]
-            for s in range(len(line)):
-                if line[s] == '':
-                    line[s] = 0
-                line[s] = float(line[s])
-            testLabel.append(line[1])
-            del line[1]
-            testHolder.append(line)
+
+            if (line[2] != ""):
+                line = line[: len(line) - 3]
+                testNames.append(line[0])
+                del line[0]
+                for s in range(len(line)):
+                    if line[s] == '':
+                        line[s] = 0
+                    line[s] = float(line[s])
+                testLabel.append(line[1])
+                if (line[1] > 0):               #
+                    posLabCount += 1            # added just to count pos and neg labels
+                else:                           #
+                    negLabCount += 1            #
+                del line[1]
+                testHolder.append(line)
 
     testHolder = np.array(testHolder)
+
+    print ("TEST DATASET'S LABELS")
+    print ("positive labels: " + str(posLabCount))
+    print ("negative labels: " + str(negLabCount))
 
     dicIndex = 0
     tcounter = 0
     # 2016 Will be used as our TRAIN file
-    for line in open('2017_Financial_Data.dat', 'r'):
+    for line in open('2016_Financial_Data.dat', 'r'):
         if tcounter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
             trainTitle = line
             tcounter += 1
+
+
         else:
             line = line.split(',')
-            line = line[: len(line) - 3]
-            trainNames.append(line[0])
-            del line[0]
-            for s in range(len(line)):
-                if line[s] == '':
-                    line[s] = 0
-                line[s] = float(line[s])
-            trainLabel.append(line[1])
-            trainDic.update({dicIndex:line[1]})
-            dicIndex +=1
-            del line[1]
-            trainHolder.append(line)
+            if (line[2] != ""):
+                line = line[: len(line) - 3]
+                trainNames.append(line[0])
+                del line[0]
+                for s in range(len(line)):
+                    if line[s] == '':
+                        line[s] = 0
+                    line[s] = float(line[s])
+                trainLabel.append(line[1])
+                trainDic.update({dicIndex: line[1]})
+                dicIndex += 1
+                del line[1]
+                trainHolder.append(line)
+
     trainHolder = np.array(trainHolder)
 
-    result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
-    accurecyResultKNN = getF1Score(result,testLabel)
-    print(accurecyResultKNN)
 
-    resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
-    accurecyResultDec = getF1Score(resultD,testLabel)
+    # result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
+    # accurecyResultKNN = getF1Score(result,testLabel)
+    # print("K-Nearest Neighbors (F1 score): " + str(accurecyResultKNN))
 
     resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
     accurecyResultNN = getF1Score(resultN, testLabel)
+    print("Neural Network (F1 Score): " + str(accurecyResultNN))
 
-    updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
+    resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
+    accurecyResultDec = getF1Score(resultD,testLabel)
+    print("Decision Tree (F1 Score): " + str(accurecyResultDec))
+
+
+    # updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
 
 def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log):
 
@@ -135,7 +136,7 @@ def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN
     log.write("\nThe F1Score from KNN neighbors = " + str(accurecyResultKNN) + "\n")
     log.write("The F1Score from NeuralNetwork = " + str(accurecyResultNN) + "\n")
     log.write("---------------------------------------------------------------------\n")
-    log.write("These are the top 10 stocks from 2017 that had the highest Growth\n")
+    log.write("These are the top 10 stocks from 2016 that had the highest Growth\n")
     log.write("---------------------------------------------------------------------\n")
     for i in top10:
         log.write(str(trainNames[i]) + " Current Revenue -> " + str(trainHolder[i][0]) + "\n")
@@ -170,21 +171,25 @@ def getAccurecy(result,testLabel):
     return acResult
 
 def getF1Score(resultD,testLabel):
-
+    ##############################################################
+    # converting values in array of labels from original values
+    # to:  0 if label was a negative float
+    #      1 if label was a positive float
     temp = []
     for t in testLabel:
         if t > 0:
             temp.append(1)
         else:
             temp.append(0)
+    ###############################################################
 
     recall = 0
     precision = 0
     F1 = 0
 
-    TP = 0
-    FN = 0
-    FP = 0
+    TP = 0  # true positives
+    FN = 0  # false negatives
+    FP = 0  # false positives
 
     for i in range(len(resultD)):
         if resultD[i] == 1 and temp[i] == 1:
