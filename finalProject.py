@@ -15,11 +15,7 @@ def main():
 
     k = 21
 
-    # print('Welcome to Stock Portfolio Builder\n')
-    # userName = input('What Username would you like you use for you Portfolio\n')
-    # log = open(str(userName)+'.txt', 'w')
-    # log.write("Welcome " + userName + " to your personal PortFolio! \n")
-    # log.write("\n")
+    print('Welcome to Stock Portfolio Builder\n')
 
     trainHolder = []    #Holds all of the stocks as vectors
     trainTitle = []     #Holds the first row which is the attributes
@@ -66,14 +62,12 @@ def main():
 
     testHolder = np.array(testHolder)
 
-    print ("TEST DATASET'S LABELS")
-    print ("positive labels: " + str(posLabCount))
-    print ("negative labels: " + str(negLabCount))
-
     dicIndex = 0
     tcounter = 0
-    # 2016 Will be used as our TRAIN file
-    for line in open('2016_Financial_Data.dat', 'r'):
+
+    uYear = input('What year would you like to TRAIN with? *Oldest data is 2014 anything before that will not work*\n')
+
+    for line in open(str(uYear)+'_Financial_Data.dat', 'r'):
         if tcounter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
@@ -112,8 +106,34 @@ def main():
     accurecyResultDec = getF1Score(resultD,testLabel)
     print("Decision Tree (F1 Score): " + str(accurecyResultDec))
 
+    while True:
+        print('Please select which option you would like \n')
+        print('1. Create a Portfolio\n')
+        print('2. Get result of one specific Stock?\n')
+        print('Q to quit\n')
 
-    # updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
+        userInput = input('Input\n')
+
+        if userInput == '1' :
+            userName = input('What Username would you like you use for you Portfolio\n')
+            log = open(str(userName) + '.txt', 'w')
+            log.write("Welcome " + userName + " to your personal PortFolio! \n")
+            log.write("\n")
+            updatePortfolio(resultD,accurecyResultDec,85,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
+        elif userInput == '2':
+            userStock = input('Which stock would you like to look up?\n')
+            foundName = ''
+            for i in range(len(testNames)):
+                if userStock == testNames[i]:
+                    if resultD[i] == 1:
+                        print(str(userStock) + ' Will have a POSITIVE growth for the year!!!\n')
+                    else:
+                        print(str(userStock) + ' Will have a NEGATIVE growth for the year :( \n')
+        else:
+            exit(1)
+
+
+
 
 def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log):
 
@@ -299,3 +319,4 @@ def getPrediction(topK,trainLabel):
 
 if __name__ == '__main__':
     main()
+
