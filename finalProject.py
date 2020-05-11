@@ -1,4 +1,5 @@
 
+
 import numpy as np
 
 from scipy import spatial
@@ -22,6 +23,7 @@ def main():
     trainNames = []     #Holds the names of the stocks, first colum
     trainLabel = []     #Holds the labels of each stock - Revenu Growth
     trainDic = {}
+    testDic = {}
 
     testHolder = []
     testTitle = []
@@ -32,8 +34,8 @@ def main():
     negLabCount = 0
 
     counter = 0
-    # 2017 Will be used as our TEST file
-    for line in open('2017_Financial_Data.dat', 'r'):
+    # 2018 Will be used as our TEST file
+    for line in open('2018_Financial_Data.dat', 'r'):
         if counter == 0:
             line = line.split(',')
             line = line[: len(line) - 5]
@@ -65,7 +67,7 @@ def main():
     dicIndex = 0
     tcounter = 0
 
-    uYear = input('What year would you like to TRAIN with? *Oldest data is 2014 anything before that will not work*\n')
+    uYear = input('What year would you like to TRAIN with (Oldest data is 2014 - Newest data is 2017)?   ')
 
     for line in open(str(uYear)+'_Financial_Data.dat', 'r'):
         if tcounter == 0:
@@ -94,48 +96,52 @@ def main():
     trainHolder = np.array(trainHolder)
 
 
-    # result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
-    # accurecyResultKNN = getF1Score(result,testLabel)
-    # print("K-Nearest Neighbors (F1 score): " + str(accurecyResultKNN))
+    result = KNN(trainHolder,testHolder,trainLabel,testLabel,k)
+    accuracyResultKNN = getF1Score(result,testLabel)
+    print("K-Nearest Neighbors (F1 score): " + str(accuracyResultKNN))
 
     resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
-    accurecyResultNN = getF1Score(resultN, testLabel)
-    print("Neural Network (F1 Score): " + str(accurecyResultNN))
+    accuracyResultNN = getF1Score(resultN, testLabel)
+    print("Neural Network (F1 Score): " + str(accuracyResultNN))
 
     resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
-    accurecyResultDec = getF1Score(resultD,testLabel)
-    print("Decision Tree (F1 Score): " + str(accurecyResultDec))
+    accuracyResultDec = getF1Score(resultD,testLabel)
+    print("Decision Tree (F1 Score): " + str(accuracyResultDec))
 
     while True:
-        print('Please select which option you would like \n')
-        print('1. Create a Portfolio\n')
-        print('2. Get result of one specific Stock?\n')
-        print('Q to quit\n')
+        print('\nPlease select which option you would like \n')
+        print('     1. Create a Portfolio')
+        print('     2. Get result of one specific Stock')
+        print('     Enter any other number to Quit\n')
 
-        userInput = input('Input\n')
+        userInput = input('     Input>  ')
 
         if userInput == '1' :
-            userName = input('What Username would you like you use for you Portfolio\n')
+            userName = input('\nWhat Username would you like you use for you Portfolio?   ')
             log = open(str(userName) + '.txt', 'w')
-            log.write("Welcome " + userName + " to your personal PortFolio! \n")
+            log.write("Welcome " + userName + "!  Here is your personal Portfolio... \n")
             log.write("\n")
-            updatePortfolio(resultD,accurecyResultDec,85,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log)
+
+            updatePortfolio(resultD,accuracyResultDec,accuracyResultKNN,accuracyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log,uYear)
+
+            print('\nYour portfolio has been created in file  "' + str(userName) + '.txt"')
         elif userInput == '2':
-            userStock = input('Which stock would you like to look up?\n')
+            userStock = input('\nWhich stock would you like to look up (the input must match any sotck names in 2018 data set)?  ')
+            userStock = userStock.upper()
             foundName = ''
             for i in range(len(testNames)):
                 if userStock == testNames[i]:
                     if resultD[i] == 1:
-                        print(str(userStock) + ' Will have a POSITIVE growth for the year!!!\n')
+                        print('\n' + str(userStock) + ' Will have a POSITIVE growth for the year!!!\n')
                     else:
-                        print(str(userStock) + ' Will have a NEGATIVE growth for the year :( \n')
+                        print('\n' + str(userStock) + ' Will have a NEGATIVE growth for the year :( \n')
         else:
             exit(1)
 
 
 
 
-def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log):
+def updatePortfolio(resultD,accuracyResultDec,accuracyResultKNN,accuracyResultNN,trainDic,trainNames,trainHolder,trainLabel,testHolder,testNames,testLabel,log,uYear):
 
     sort = sorted(trainDic, key=lambda x: trainDic[x],reverse=True)
     top10 = sort[:10]
@@ -151,27 +157,29 @@ def updatePortfolio(resultD,accurecyResultDec,accurecyResultKNN,accurecyResultNN
         if testLabel[x] > 0:
             actualGrowth.append(x)
 
-
-    log.write("The F1Score from DecisionTree = " + str(accurecyResultDec))
-    log.write("\nThe F1Score from KNN neighbors = " + str(accurecyResultKNN) + "\n")
-    log.write("The F1Score from NeuralNetwork = " + str(accurecyResultNN) + "\n")
-    log.write("---------------------------------------------------------------------\n")
-    log.write("These are the top 10 stocks from 2016 that had the highest Growth\n")
-    log.write("---------------------------------------------------------------------\n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
+    log.write("Training data set for this portfolio is " + str(uYear) +  "\n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
+    log.write("The F1-Score from DecisionTree = " + str(accuracyResultDec))
+    log.write("\nThe F1-Score from KNN neighbors = " + str(accuracyResultKNN) + "\n")
+    log.write("The F1-Score from NeuralNetwork = " + str(accuracyResultNN) + "\n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
+    log.write("These are the top 10 highest Revenue Growth stocks up to present day in 2018  \n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
     for i in top10:
         log.write(str(trainNames[i]) + " Current Revenue -> " + str(trainHolder[i][0]) + "\n")
-    log.write("---------------------------------------------------------------------\n")
-    log.write("Out of those, These are the once that Actually Grew biased on OUR predictions! \n")
-    log.write("---------------------------------------------------------------------\n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
+    log.write("Out of those, these are the stocks that Actually will have Revenue Growth based on OUR predictions! \n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
     for i in actualGrowth:
-        log.write(str(testNames[i]) + " Future Revenue Grown %" + str(testLabel[i]) + " Future Revenue -> " + str(testHolder[i][0]) + "\n")
-    log.write("---------------------------------------------------------------------\n")
+        log.write(str(testNames[i]) + " Current Revenue Growth %" + str(testLabel[i])  + "\n")
+    log.write("--------------------------------------------------------------------------------------------------\n")
 
 
 
 
 
-def getAccurecy(result,testLabel):
+def getAccuracy(result,testLabel):
 
     temp = []
     acCounter = 0
@@ -285,7 +293,10 @@ def KNN(trainHolder,testHolder,trainLabel,testLabel,k):
     finalResult = []
 
     for i in range(len(testHolder)):
-        print(i)
+        if (( i % 50) == 0):
+            print('\n' * 100)
+            print(str(i) + ' out of ' + str(len(testHolder)) + ' records.')
+
         tempDistance = {}
 
         for j in range(len(trainHolder)):
@@ -294,7 +305,7 @@ def KNN(trainHolder,testHolder,trainLabel,testLabel,k):
 
         sort = sorted(tempDistance, key=lambda x: tempDistance[x])
         topK = sort[:k]
-        print(topK)
+#        print(topK)
 
         prediction = getPrediction(topK,trainLabel)
         finalResult.append(prediction)
