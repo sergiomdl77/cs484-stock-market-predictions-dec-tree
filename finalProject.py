@@ -1,14 +1,10 @@
 
-
 import numpy as np
-
 from scipy import spatial
-
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.decomposition import TruncatedSVD
 from imblearn.over_sampling import SMOTE
 from scipy.sparse import csr_matrix
-
 from sklearn.neural_network import MLPClassifier
 
 
@@ -102,7 +98,8 @@ def main():
 
     resultN = NeuralN(trainHolder, testHolder, trainLabel, testLabel)
     accuracyResultNN = getF1Score(resultN, testLabel)
-    print("Neural Network (F1 Score): " + str(accuracyResultNN))
+    print("Neural Network (F1 Score): " + str(accuracyResultNN))2017
+    ''
 
     resultD = DecisionT(trainHolder,testHolder,trainLabel,testLabel)
     accuracyResultDec = getF1Score(resultD,testLabel)
@@ -330,4 +327,3 @@ def getPrediction(topK,trainLabel):
 
 if __name__ == '__main__':
     main()
-
