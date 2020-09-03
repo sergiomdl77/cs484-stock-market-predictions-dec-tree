@@ -2,8 +2,9 @@
 
 Authors:
 
-Sergio Delgado
-Saad Arshad (my partner in this project)
+- Sergio Delgado
+
+- Saad Arshad (my partner in this project)
 
 
 Introduction:
